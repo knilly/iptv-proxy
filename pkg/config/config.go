@@ -20,6 +20,8 @@ package config
 
 import (
 	"net/url"
+
+	"github.com/pierre-emmanuelJ/iptv-proxy/pkg/regex"
 )
 
 // CredentialString represents an iptv-proxy credential.
@@ -56,4 +58,5 @@ type ProxyConfig struct {
 	AdvertisedPort       int
 	HTTPS                bool
 	User, Password       CredentialString
+	Filter               *regex.Regex
 }

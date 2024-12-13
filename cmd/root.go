@@ -26,7 +26,7 @@ import (
 	"strings"
 
 	"github.com/pierre-emmanuelJ/iptv-proxy/pkg/config"
-
+	"github.com/pierre-emmanuelJ/iptv-proxy/pkg/regex"
 	"github.com/pierre-emmanuelJ/iptv-proxy/pkg/server"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -41,6 +41,22 @@ var rootCmd = &cobra.Command{
 	Use:   "iptv-proxy",
 	Short: "Reverse proxy on iptv m3u file and xtream codes server api",
 	Run: func(cmd *cobra.Command, args []string) {
+		confRegex := &regex.RegexSettings{
+			M3uGroup:       viper.GetString("regex-m3u-group"),
+			M3uChannel:     viper.GetString("regex-m3u-channel"),
+			CategoryLive:   viper.GetString("regex-category-live"),
+			CategoryVod:    viper.GetString("regex-category-vod"),
+			CategorySeries: viper.GetString("regex-category-series"),
+			StreamsLive:    viper.GetString("regex-streams-live"),
+			StreamsSeries:  viper.GetString("regex-streams-series"),
+			StreamsVod:     viper.GetString("regex-streams-vod"),
+		}
+
+		regex, regexErr := regex.NewFilter(confRegex)
+		if regexErr != nil {
+			log.Fatal(regexErr)
+		}
+
 		m3uURL := viper.GetString("m3u-url")
 		remoteHostURL, err := url.Parse(m3uURL)
 		if err != nil {
@@ -59,12 +75,12 @@ var rootCmd = &cobra.Command{
 
 		if xtreamBaseURL == "" && xtreamPassword == "" && xtreamUser == "" {
 			if username != "" && password != "" {
-				log.Printf("[iptv-proxy] INFO: It's seams you are using an Xtream provider!")
+				log.Printf("[iptv-proxy] INFO: It's seams you are using an Xtream provider!\n")
 
 				xtreamUser = username
 				xtreamPassword = password
 				xtreamBaseURL = fmt.Sprintf("%s://%s", remoteHostURL.Scheme, remoteHostURL.Host)
-				log.Printf("[iptv-proxy] INFO: xtream service enable with xtream base url: %q xtream username: %q xtream password: %q", xtreamBaseURL, xtreamUser, xtreamPassword)
+				log.Printf("[iptv-proxy] INFO: xtream service enable with xtream base url: %q xtream username: %q xtream password: %q\n", xtreamBaseURL, xtreamUser, xtreamPassword)
 			}
 		}
 
@@ -86,6 +102,8 @@ var rootCmd = &cobra.Command{
 			CustomEndpoint:       viper.GetString("custom-endpoint"),
 			CustomId:             viper.GetString("custom-id"),
 			XtreamGenerateApiGet: viper.GetBool("xtream-api-get"),
+
+			Filter: regex,
 		}
 
 		if conf.AdvertisedPort == 0 {
@@ -134,6 +152,16 @@ func init() {
 	rootCmd.Flags().String("xtream-base-url", "", "Xtream-code base url e.g(http://expample.tv:8080)")
 	rootCmd.Flags().Int("m3u-cache-expiration", 1, "M3U cache expiration in hour")
 	rootCmd.Flags().BoolP("xtream-api-get", "", false, "Generate get.php from xtream API instead of get.php original endpoint")
+
+	// Regex options
+	rootCmd.Flags().String("regex-m3u-group", "", "Regex applied to filtering M3U groups")
+	rootCmd.Flags().String("regex-m3u-channel", "", "Regex applied to filtering M3U channels")
+	rootCmd.Flags().String("regex-category-live", "", "Regex applied to filtering live categories")
+	rootCmd.Flags().String("regex-category-vod", "", "Regex applied to filtering vod categories")
+	rootCmd.Flags().String("regex-category-series", "", "Regex applied to filtering series categories")
+	rootCmd.Flags().String("regex-streams-live", "", "Regex applied to filtering live streams")
+	rootCmd.Flags().String("regex-streams-vod", "", "Regex applied to filtering vod streams")
+	rootCmd.Flags().String("regex-streams-series", "", "Regex applied to filtering series streams")
 
 	if e := viper.BindPFlags(rootCmd.Flags()); e != nil {
 		log.Fatal("error binding PFlags to viper")

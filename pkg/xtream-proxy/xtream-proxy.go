@@ -102,21 +102,23 @@ func (c *Client) Action(config *config.ProxyConfig, action string, q url.Values)
 
 	switch action {
 	case getLiveCategories:
-		respBody, err = c.GetLiveCategories()
+		respBody, err = config.Filter.FilterLiveCategory(c.GetLiveCategories())
 	case getLiveStreams:
 		categoryID := ""
 		if len(q["category_id"]) > 0 {
 			categoryID = q["category_id"][0]
 		}
-		respBody, err = c.GetLiveStreams(categoryID)
+
+		respBody, err = config.Filter.FilterLiveStreams(c.GetLiveStreams(categoryID))
 	case getVodCategories:
-		respBody, err = c.GetVideoOnDemandCategories()
+		respBody, err = config.Filter.FilterVodCategory(c.GetVideoOnDemandCategories())
 	case getVodStreams:
 		categoryID := ""
 		if len(q["category_id"]) > 0 {
 			categoryID = q["category_id"][0]
 		}
-		respBody, err = c.GetVideoOnDemandStreams(categoryID)
+
+		respBody, err = config.Filter.FilterVodStreams(c.GetVideoOnDemandStreams(categoryID))
 	case getVodInfo:
 		httpcode, err = validateParams(q, "vod_id")
 		if err != nil {
@@ -124,13 +126,13 @@ func (c *Client) Action(config *config.ProxyConfig, action string, q url.Values)
 		}
 		respBody, err = c.GetVideoOnDemandInfo(q["vod_id"][0])
 	case getSeriesCategories:
-		respBody, err = c.GetSeriesCategories()
+		respBody, err = config.Filter.FilterSeriesCategory(c.GetSeriesCategories())
 	case getSeries:
 		categoryID := ""
 		if len(q["category_id"]) > 0 {
 			categoryID = q["category_id"][0]
 		}
-		respBody, err = c.GetSeries(categoryID)
+		respBody, err = config.Filter.FilterSeries(c.GetSeries(categoryID))
 	case getSerieInfo:
 		httpcode, err = validateParams(q, "series_id")
 		if err != nil {
