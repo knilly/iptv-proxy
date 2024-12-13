@@ -5,26 +5,26 @@ package xtreamcodes
 
 // ServerInfo describes the state of the Xtream-Codes server.
 type ServerInfo struct {
-	HTTPSPort    FlexInt   `json:"https_port,string"`
-	Port         FlexInt   `json:"port,string"`
+	HTTPSPort    FlexInt   `json:"https_port"`
+	Port         FlexInt   `json:"port"`
 	Process      bool      `json:"process"`
-	RTMPPort     FlexInt   `json:"rtmp_port,string"`
+	RTMPPort     FlexInt   `json:"rtmp_port"`
 	Protocol     string    `json:"server_protocol"`
 	TimeNow      string    `json:"time_now"`
-	TimestampNow Timestamp `json:"timestamp_now,string"`
+	TimestampNow Timestamp `json:"timestamp_now"`
 	Timezone     string    `json:"timezone"`
 	URL          string    `json:"url"`
 }
 
 // UserInfo is the current state of the user as it relates to the Xtream-Codes server.
 type UserInfo struct {
-	ActiveConnections    FlexInt            `json:"active_cons,string"`
+	ActiveConnections    FlexInt            `json:"active_cons"`
 	AllowedOutputFormats []string           `json:"allowed_output_formats"`
 	Auth                 ConvertibleBoolean `json:"auth"`
 	CreatedAt            Timestamp          `json:"created_at"`
 	ExpDate              *Timestamp         `json:"exp_date"`
-	IsTrial              ConvertibleBoolean `json:"is_trial,string"`
-	MaxConnections       FlexInt            `json:"max_connections,string"`
+	IsTrial              ConvertibleBoolean `json:"is_trial"`
+	MaxConnections       FlexInt            `json:"max_connections"`
 	Message              string             `json:"message"`
 	Password             string             `json:"password"`
 	Status               string             `json:"status"`
@@ -39,7 +39,7 @@ type AuthenticationResponse struct {
 
 // Category describes a grouping of Stream.
 type Category struct {
-	ID     FlexInt `json:"category_id,string"`
+	ID     FlexInt `json:"category_id"`
 	Name   string  `json:"category_name"`
 	Parent FlexInt `json:"parent_id"`
 
@@ -50,7 +50,7 @@ type Category struct {
 // Stream is a streamble video source.
 type Stream struct {
 	Added              *Timestamp `json:"added"`
-	CategoryID         FlexInt    `json:"category_id,string"`
+	CategoryID         FlexInt    `json:"category_id"`
 	CategoryName       string     `json:"category_name"`
 	ContainerExtension string     `json:"container_extension"`
 	CustomSid          string     `json:"custom_sid"`
@@ -71,7 +71,7 @@ type Stream struct {
 type SeriesInfo struct {
 	BackdropPath   *JSONStringSlice `json:"backdrop_path,omitempty"`
 	Cast           string           `json:"cast"`
-	CategoryID     *FlexInt         `json:"category_id,string"`
+	CategoryID     *FlexInt         `json:"category_id"`
 	Cover          string           `json:"cover"`
 	Director       string           `json:"director"`
 	EpisodeRunTime string           `json:"episode_run_time"`
@@ -80,7 +80,7 @@ type SeriesInfo struct {
 	Name           string           `json:"name"`
 	Num            FlexInt          `json:"num"`
 	Plot           string           `json:"plot"`
-	Rating         FlexInt          `json:"rating,string"`
+	Rating         FlexInt          `json:"rating"`
 	Rating5        FlexFloat        `json:"rating_5based"`
 	ReleaseDate    string           `json:"releaseDate"`
 	SeriesID       FlexInt          `json:"series_id"`
@@ -89,62 +89,53 @@ type SeriesInfo struct {
 }
 
 type SeriesEpisode struct {
-	Added              string  `json:"added"`
-	ContainerExtension string  `json:"container_extension"`
-	CustomSid          string  `json:"custom_sid"`
-	DirectSource       string  `json:"direct_source"`
-	EpisodeNum         FlexInt `json:"episode_num"`
-	ID                 string  `json:"id"`
-	Info               struct {
-		Audio        FFMPEGStreamInfo `json:"audio"`
-		Bitrate      FlexInt          `json:"bitrate"`
-		Duration     string           `json:"duration"`
-		DurationSecs FlexInt          `json:"duration_secs"`
-		MovieImage   string           `json:"movie_image"`
-		Name         string           `json:"name"`
-		Plot         string           `json:"plot"`
-		Rating       FlexFloat        `json:"rating"`
-		ReleaseDate  string           `json:"releasedate"`
-		Video        FFMPEGStreamInfo `json:"video"`
-	} `json:"info"`
-	Season FlexInt `json:"season"`
-	Title  string  `json:"title"`
+	Added              string       `json:"added"`
+	ContainerExtension string       `json:"container_extension"`
+	CustomSid          string       `json:"custom_sid"`
+	DirectSource       string       `json:"direct_source"`
+	EpisodeNum         FlexInt      `json:"episode_num"`
+	ID                 string       `json:"id"`
+	Info               *EpisodeInfo `json:"info,omitempty"`
+	Season             FlexInt      `json:"season"`
+	Title              string       `json:"title"`
 }
 
 type Series struct {
-	Episodes map[string][]SeriesEpisode `json:"episodes"`
-	Info     SeriesInfo                 `json:"info"`
-	Seasons  []interface{}              `json:"seasons"`
+	Episodes FlexMapSeriesEpisode `json:"episodes"`
+	Info     SeriesInfo           `json:"info"`
+	Seasons  []interface{}        `json:"seasons"`
 }
 
 // VideoOnDemandInfo contains information about a video on demand stream.
 type VideoOnDemandInfo struct {
-	Info struct {
-		Audio          FFMPEGStreamInfo `json:"audio"`
-		BackdropPath   []string         `json:"backdrop_path"`
-		Bitrate        FlexInt          `json:"bitrate"`
-		Cast           string           `json:"cast"`
-		Director       string           `json:"director"`
-		Duration       string           `json:"duration"`
-		DurationSecs   FlexInt          `json:"duration_secs"`
-		Genre          string           `json:"genre"`
-		MovieImage     string           `json:"movie_image"`
-		Plot           string           `json:"plot"`
-		Rating         FlexFloat        `json:"rating"`
-		ReleaseDate    string           `json:"releasedate"`
-		TmdbID         FlexInt          `json:"tmdb_id"`
-		Video          FFMPEGStreamInfo `json:"video"`
-		YoutubeTrailer string           `json:"youtube_trailer"`
-	} `json:"info"`
+	Info      *VODInfo `json:"info,omitempty"`
 	MovieData struct {
 		Added              Timestamp `json:"added"`
-		CategoryID         FlexInt   `json:"category_id,string"`
+		CategoryID         FlexInt   `json:"category_id"`
 		ContainerExtension string    `json:"container_extension"`
 		CustomSid          string    `json:"custom_sid"`
 		DirectSource       string    `json:"direct_source"`
 		Name               string    `json:"name"`
 		StreamID           FlexInt   `json:"stream_id"`
 	} `json:"movie_data"`
+}
+
+type VODInfo struct {
+	Audio          *FFMPEGStreamInfo `json:"audio,omitempty"`
+	BackdropPath   []string          `json:"backdrop_path"`
+	Bitrate        FlexInt           `json:"bitrate"`
+	Cast           string            `json:"cast"`
+	Director       string            `json:"director"`
+	Duration       string            `json:"duration"`
+	DurationSecs   FlexInt           `json:"duration_secs"`
+	Genre          string            `json:"genre"`
+	MovieImage     string            `json:"movie_image"`
+	Plot           string            `json:"plot"`
+	Rating         FlexFloat         `json:"rating"`
+	ReleaseDate    string            `json:"releasedate"`
+	TmdbID         FlexInt           `json:"tmdb_id"`
+	Video          *FFMPEGStreamInfo `json:"video,omitempty"`
+	YoutubeTrailer string            `json:"youtube_trailer"`
 }
 
 type epgContainer struct {
@@ -156,13 +147,26 @@ type EPGInfo struct {
 	ChannelID      string             `json:"channel_id"`
 	Description    Base64Value        `json:"description"`
 	End            string             `json:"end"`
-	EPGID          FlexInt            `json:"epg_id,string"`
+	EPGID          FlexInt            `json:"epg_id"`
 	HasArchive     ConvertibleBoolean `json:"has_archive"`
-	ID             FlexInt            `json:"id,string"`
+	ID             FlexInt            `json:"id"`
 	Lang           string             `json:"lang"`
 	NowPlaying     ConvertibleBoolean `json:"now_playing"`
 	Start          string             `json:"start"`
 	StartTimestamp Timestamp          `json:"start_timestamp"`
 	StopTimestamp  Timestamp          `json:"stop_timestamp"`
 	Title          Base64Value        `json:"title"`
+}
+
+type EpisodeInfo struct {
+	Audio        *FFMPEGStreamInfo `json:"audio,omitempty"`
+	Bitrate      FlexInt           `json:"bitrate"`
+	Duration     string            `json:"duration"`
+	DurationSecs FlexInt           `json:"duration_secs"`
+	MovieImage   string            `json:"movie_image"`
+	Name         string            `json:"name"`
+	Plot         string            `json:"plot"`
+	Rating       FlexFloat         `json:"rating"`
+	ReleaseDate  string            `json:"releasedate"`
+	Video        *FFMPEGStreamInfo `json:"video,omitempty"`
 }

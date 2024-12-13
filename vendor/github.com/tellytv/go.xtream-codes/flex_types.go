@@ -83,10 +83,18 @@ func (f FlexInt) MarshalJSON() ([]byte, error) {
 
 func (f *FlexInt) UnmarshalJSON(data []byte) error {
 	var v int64
-
+	originalData := string(data)
 	data = bytes.Trim(data, `" `)
+	trimmedData := string(data)
+
+	if len(data) == 0 {
+		return nil
+	}
 
 	err := json.Unmarshal(data, &v)
+	if err != nil {
+		return fmt.Errorf("FlexInt UnmarshalJSON error: %v (original: %s, trimmed: %s, Data type: %T, Data length: %d)", err, originalData, trimmedData, data, len(data))
+	}
 	*f = FlexInt(v)
 	return err
 }
@@ -140,4 +148,46 @@ func (b *JSONStringSlice) UnmarshalJSON(data []byte) error {
 	}
 
 	return json.Unmarshal(data, &b.Slice)
+}
+
+type FlexMapSeriesEpisode map[string][]SeriesEpisode
+
+func (fm FlexMapSeriesEpisode) MarshalJSON() ([]byte, error) {
+	type Alias FlexMapSeriesEpisode
+	return json.Marshal(Alias(fm))
+}
+
+// UnmarshalJSON 
+func (fm *FlexMapSeriesEpisode) UnmarshalJSON(data []byte) error {
+	if len(data) == 0 {
+		return nil
+	} else if data[0] == '{' {
+		// data seems to be an object with default struct
+		var tempData map[string][]SeriesEpisode
+		if err := json.Unmarshal(data, &tempData); err != nil {
+			return err
+		}
+
+		*fm = tempData
+	} else if data[0] == '[' {
+		// data seems to be an array instead of object
+		var invalidData [][]SeriesEpisode
+
+		if err := json.Unmarshal(data, &invalidData); err != nil {
+			return err
+		}
+
+		tempData := make(map[string][]SeriesEpisode, len(invalidData))
+
+		for _, season := range invalidData {
+			seasonIndex := FlexInt(season[0].Season)
+			index := fmt.Sprintf("%d", seasonIndex)
+			tempData[index] = season
+		}
+		*fm = tempData
+	} else {
+		return fmt.Errorf("Unmarshal FlexMapSeriesEpisode: unexpected JSON format")
+	}
+
+	return nil
 }
